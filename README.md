@@ -1,19 +1,6 @@
-To get this running:
+To get this running, treat it like a standard node app (ie. node app.js).
 
-1. Install Haraka
-```
-npm install -g Haraka
-```
-
-2. Clone this repo
-```
-git clone https://github.com/pauljohncleary/oatmail-server.git
-```
-
-3. Run Haraka 
-```
-haraka -c oatmail-server/haraka
-```
+The mail server we use is Haraka.
 
 This directory contains two key directories for how Haraka will function:
 
