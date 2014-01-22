@@ -1,22 +1,14 @@
-To get this running, treat it like a standard node app (ie. node app.js).
+To get this running, treat it like a standard node app:
+
+````
+npm install
+````
+````
+node app.js
+````
 
 The mail server we use is Haraka.
 
-This directory contains two key directories for how Haraka will function:
+We use custom plugins to pick up the email and push them onto the oatmail api.
 
- - config
-           This directory contains configuration files for Haraka. The
-           directory contains the default configuration. You probably want
-           to modify some files in here, particularly `smtp.ini`.
- - plugins
-           This directory contains custom plugins which you write to run in
-           Haraka. The plugins which ship with Haraka are still available
-           to use.
- - docs/plugins
-           This directory contains documentation for your plugins.
-
-Documentation for Haraka is available via `haraka -h <name> where the name
-is either the name of a plugin (without the .js extension) or the name of
-a core Haraka module, such as `Connection` or `Transaction`.
-
-To get documentation on writing a plugin type `haraka -h Plugins`.
+You will need to complete additional smtp server setup to get this working properly on your server.
