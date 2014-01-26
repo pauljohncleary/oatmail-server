@@ -2,6 +2,8 @@
  "dependencies":{
      "simplesmtp": "*",
      "mailparser": "*",
-     "request": "*"
+     "request": "*",
+     "express": "*",
+     "nodemailer": "*"
   }
 }
