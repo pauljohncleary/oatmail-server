@@ -40,14 +40,26 @@ smtp.on("dataReady", function(connection, callback){
 
 });
 
-mailparser.on("end", function(mail_object){
-    //delete email from server
-    
+mailparser.on("end", function(mail_object){    
     console.log("Email parsed with Subject:", mail_object.subject);
     sendToOatmail(mail_object);
 });
 
 
 var sendToOatmail = function(mail_object) {
-    request.post("https://oatmail.io/api/recieve", mail_object);    
+    var reqOptions = {
+        url: 'https://oatmail.io/api/recieve',
+        method: "POST",     
+        body: mail_object,
+        json: true,
+        strictSSL: true
+    }
+
+    request(reqOptions, function(error, incomingMessage, response) {
+        if(error) {
+            console.log("Error sending email to oatmail: " + response.statusCode)
+        } else {
+           console.log("Response from Oatmail.io: " + response);
+        }
+    });
 }
