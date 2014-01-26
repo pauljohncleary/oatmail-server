@@ -7,8 +7,8 @@ npm install
 node app.js
 ````
 
-The mail server we use is Haraka.
+The mail server we use is simplesmtp.
 
-We use custom plugins to pick up the email and push them onto the oatmail api.
+We then use mailparser to parse the mail into the correct format and send it over to the Oatmail server for storing on tent.
 
 You will need to complete additional smtp server setup to get this working properly on your server.

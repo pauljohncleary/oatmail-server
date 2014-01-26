@@ -1,5 +1,7 @@
-{"name":"haraka_local","description":"An SMTP Server","version":"0.0.1",
+{"name":"Oatmail-Server","description":"The SMTP Server that powers Oatmail.io","version":"0.0.1",
  "dependencies":{
-     "Haraka": "*"
+     "simplesmtp": "*",
+     "mailparser": "*",
+     "request": "*"
   }
 }
