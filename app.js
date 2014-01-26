@@ -7,7 +7,8 @@ var simplesmtp = require("simplesmtp"),
     express = require('express'),
     app = express(),
     smtpPort = 2525,
-    http = require('http');
+    http = require('http'),
+    config = require('./config');
 
 /***
 
@@ -82,12 +83,6 @@ Nodemailer (sending emails)
 
 ***/
 
-var nodemailer = require("nodemailer");
-
-var transport = nodemailer.createTransport("SMTP", { 
-    secureConnection: true, // use SSL
-    port: 1465, // port for secure SMTP
-});
 
 app.set('port', process.env.PORT || 3000);
 app.use(express.json());
@@ -95,21 +90,22 @@ app.use(express.urlencoded());
 
 //http endpoint
 app.post('/smtp/send', function(req, res){
-    //var email = req.body.email;
-    var email =  { 
-        from: "Fred Foo ✔ <foo@blurdybloop.com>", // sender address
-        to: "bar@blurdybloop.com, baz@blurdybloop.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world ✔", // plaintext body
-        html: "<b>Hello world ✔</b>" // html body 
-    };
+    var email = req.body.email;
 
-    transport.sendMail(email, function(error, responseStatus) {
-        if(error){
-            console.log("sending email, " + error); // response from the server
-        } else {
-            console.log("sent message from: " + email.from);
-        }
+    var mailGunCreds = config.mailGun();  
+    var api_key = mailGunCreds.api_key;
+    var domain = mailGunCreds.domain;
+
+ 
+    var mailgun = require('mailgun-js')(api_key, domain);
+  
+    mailgun.messages.send(email, function (error, response, body) {
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(response.statusCode);
+        return response.statusCode;
+      }
     });
 
 });

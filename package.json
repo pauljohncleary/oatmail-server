@@ -4,6 +4,6 @@
      "mailparser": "*",
      "request": "*",
      "express": "*",
-     "nodemailer": "*"
+     "mailgun-js": "*"
   }
 }
