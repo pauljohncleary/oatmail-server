@@ -32,6 +32,9 @@ smtp.on("startData", function(connection){
         .update(connection.to + connection.from + Date.now() + Math.random() )
         .digest('hex');
     connection.saveStream = fs.createWriteStream("/tmp/" + connection.messageId);
+
+    //add the file name to the headers so we can delete it later
+    connection.saveStream.write("messageid: " + connection.messageId + "\n");
 });
 
 //start saving it
@@ -48,12 +51,14 @@ smtp.on("dataReady", function(connection, callback){
     fs.createReadStream("/tmp/" + connection.messageId ).pipe(mailparser);
     
     //close the connection, with messageid as the queue id
-    callback(null, connection.messageId);    
+    callback(null, connection.messageId);
 
 });
 
+
 //once email is parsed, ship it off to oatmail
-mailparser.on("end", function(mail_object){    
+mailparser.on("end", function(mail_object){ 
+    console.log(mail_object);   
     console.log("Email parsed with Subject:", mail_object.subject);
     sendToOatmail(mail_object);
 });
@@ -68,14 +73,21 @@ var sendToOatmail = function(mail_object) {
         strictSSL: true
     }
 
-    request(reqOptions, function(error, incomingMessage, response) {
-        if(error) {
-            console.log("Error sending email to oatmail: " + response.statusCode)
+    request(reqOptions, function(error, response, body) {
+        if(!error && response.statusCode == 200) {
+           deleteTmpEmail(mail_object.headers.messageid);
+           console.log("Sent email to oatmail app, success! Code: " + response.statusCode + ". Deleting the email from /tmp/");            
         } else {
-           console.log("Response storing email from the app: " + response);
+           console.log("Error sending email to oatmail app, need some kind of logic to keep trying? " + response);
         }
     });
 }
+
+//function to remove emails from the /tmp/ folder after they're sent
+deleteTmpEmail = function(messageId) {
+    fs.unlink('/tmp/' + messageId);
+}
+
 
 /***
 
@@ -90,7 +102,14 @@ app.use(express.urlencoded());
 
 //http endpoint
 app.post('/smtp/send', function(req, res){
-    var email = req.body.email;
+    //var email = req.body.email;
+    var email = { 
+        from: "Fred Foo ✔ <foo@oatmail.io>", // sender address
+        to: "pauljohncleary@gmail.com", // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world ✔", // plaintext body
+        html: "<b>Hello world ✔</b>" // html body 
+    };
 
     var mailGunCreds = config.mailGun();  
     var api_key = mailGunCreds.api_key;
