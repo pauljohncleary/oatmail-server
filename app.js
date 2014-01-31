@@ -2,7 +2,6 @@ var simplesmtp = require("simplesmtp"),
     fs = require("fs"),
     crypto = require("crypto"),
     MailParser = require("mailparser").MailParser,
-    mailparser = new MailParser(),
     request = require('request'),
     express = require('express'),
     app = express(),
@@ -31,7 +30,7 @@ smtp.on("startData", function(connection){
         .digest('hex');
     connection.saveStream = fs.createWriteStream("/tmp/" + oatmailid);
 
-    //add the file name to the headers so we can delete it later
+    //add the file name to the headers
     connection.saveStream.write("oatmailid: " + oatmailid + "\n");
 });
 
@@ -46,20 +45,19 @@ smtp.on("dataReady", function(connection, callback){
     connection.saveStream.end();
 
     //parse with mailparser
+    var mailparser = new MailParser();
     fs.createReadStream(path).pipe(mailparser);
+
+    //once email is parsed, ship it off to oatmail
+    mailparser.on("end", function(mail_object){ 
+        console.log("Email recieved and parsed with Subject:", mail_object.subject);
+        sendToOatmail(mail_object);
+    });    
     
-    //close the connection, with oatmailid as the queue id
+    //close the connection,
     callback(null, "qID");
 
 });
-
-
-//once email is parsed, ship it off to oatmail
-mailparser.on("end", function(mail_object){ 
-    console.log("Email recieved and parsed with Subject:", mail_object.subject);
-    sendToOatmail(mail_object);
-});
-
 
 var sendToOatmail = function(mail_object) {
     var reqOptions = {
