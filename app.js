@@ -100,14 +100,7 @@ app.use(express.urlencoded());
 
 //http endpoint
 app.post('/smtp/send', function(req, res){
-    //var email = req.body.email;
-    var email = { 
-        from: "Fred Foo ✔ <foo@oatmail.io>", // sender address
-        to: "pauljohncleary@gmail.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world ✔", // plaintext body
-        html: "<b>Hello world ✔</b>" // html body 
-    };
+    var email = req.body.email;
 
     var mailGunCreds = config.mailGun();  
     var api_key = mailGunCreds.api_key;
