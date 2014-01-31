@@ -6,7 +6,7 @@ var simplesmtp = require("simplesmtp"),
     request = require('request'),
     express = require('express'),
     app = express(),
-    smtpPort = 2525,
+    smtpPort = 25,
     http = require('http'),
     config = require('./config');
 
@@ -26,8 +26,6 @@ smtp.listen(smtpPort);
 
 //email starts being recieved
 smtp.on("startData", function(connection){
-	console.log("Message from:", connection.from);
-    console.log("Message to:", connection.to);
     connection.messageId = crypto.createHash('sha1')
         .update(connection.to + connection.from + Date.now() + Math.random() )
         .digest('hex');
