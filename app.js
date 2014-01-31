@@ -26,13 +26,13 @@ smtp.listen(smtpPort);
 
 //email starts being recieved
 smtp.on("startData", function(connection){
-    connection.messageId = crypto.createHash('sha1')
+    var oatmailid = crypto.createHash('sha1')
         .update(connection.to + connection.from + Date.now() + Math.random() )
         .digest('hex');
-    connection.saveStream = fs.createWriteStream("/tmp/" + connection.messageId);
+    connection.saveStream = fs.createWriteStream("/tmp/" + oatmailid);
 
     //add the file name to the headers so we can delete it later
-    connection.saveStream.write("messageid: " + connection.messageId + "\n");
+    connection.saveStream.write("oatmailid: " + oatmailid + "\n");
 });
 
 //start saving it
@@ -40,24 +40,23 @@ smtp.on("data", function(connection, chunk){
     connection.saveStream.write(chunk);    
 });
 
-//once email is saved, parse it
+//once email is saved, send it for parsing 
 smtp.on("dataReady", function(connection, callback){
+    var path = connection.saveStream.path;
     connection.saveStream.end();
-    console.log("Message received and stored at /tmp/" + connection.messageId);
 
     //parse with mailparser
-    fs.createReadStream("/tmp/" + connection.messageId ).pipe(mailparser);
+    fs.createReadStream(path).pipe(mailparser);
     
-    //close the connection, with messageid as the queue id
-    callback(null, connection.messageId);
+    //close the connection, with oatmailid as the queue id
+    callback(null, "qID");
 
 });
 
 
 //once email is parsed, ship it off to oatmail
 mailparser.on("end", function(mail_object){ 
-    console.log(mail_object);   
-    console.log("Email parsed with Subject:", mail_object.subject);
+    console.log("Email recieved and parsed with Subject:", mail_object.subject);
     sendToOatmail(mail_object);
 });
 
@@ -73,7 +72,7 @@ var sendToOatmail = function(mail_object) {
 
     request(reqOptions, function(error, response, body) {
         if(!error && response.statusCode == 200) {
-           deleteTmpEmail(mail_object.headers.messageid);
+           deleteTmpEmail(mail_object.headers.oatmailid);
            console.log("Sent email to oatmail app, success! Code: " + response.statusCode + ". Deleting the email from /tmp/");            
         } else {
            console.log("Error sending email to oatmail app, need some kind of logic to keep trying? " + response);
@@ -82,8 +81,8 @@ var sendToOatmail = function(mail_object) {
 }
 
 //function to remove emails from the /tmp/ folder after they're sent
-deleteTmpEmail = function(messageId) {
-    fs.unlink('/tmp/' + messageId);
+deleteTmpEmail = function(oatmailid) {
+    fs.unlink('/tmp/' + oatmailid);
 }
 
 
