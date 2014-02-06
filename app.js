@@ -100,7 +100,7 @@ app.use(express.urlencoded());
 
 //http endpoint
 app.post('/smtp/send', function(req, res){
-    var email = req.body.email;
+    var email = req.body;
 
     var mailGunCreds = config.mailGun();  
     var api_key = mailGunCreds.api_key;
