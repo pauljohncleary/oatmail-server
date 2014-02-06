@@ -109,7 +109,7 @@ app.post('/smtp/send', function(req, res){
  
     var mailgun = require('mailgun-js')(api_key, domain);
   
-    mailgun.messages.send(email, function (error, response, body) {
+    return mailgun.messages.send(email, function (error, response, body) {
       if(error) {
         console.log(error);
       } else {
